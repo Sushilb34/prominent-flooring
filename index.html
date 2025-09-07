@@ -66,8 +66,10 @@
                                 <li class="menu-item menu-item-has-children" data-mm="false" data-mmc="2"><a href="contact.html"><span class="mi"></span><span class="txt">Contact us</span><span class="di icon-arrow-right9"></span></a>
                                 </li>
 
-                                <li class="" data-mm="false" data-mmc="2"><a href=".html"><span class="mi"></span><span class="txt">PAY NOW</span><span class="di icon-arrow-right9"></span></a>
-                                </li>
+                                <li class="" data-mm="false" data-mmc="2">
+  <div id="paypal-button-container"></div>
+</li>
+
 
                             </ul>
                         </nav>
@@ -986,6 +988,41 @@ padding: 70px;">Are you interested in learning more? Give us a call today at 803
             jQuery(sliderID).show().html(errorMessage);
         }
     </script>
+
+    <script>
+paypal.Buttons({
+  createOrder: function(data, actions) {
+    return fetch("http://localhost:3000/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: [
+          { name: "Deposit Payment", price: "100.00", quantity: 1 }
+        ]
+      })
+    })
+    .then(res => res.json())
+    .then(order => order.id);
+  },
+  onApprove: function(data, actions) {
+    return fetch("http://localhost:3000/capture-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: data.orderID })
+    })
+    .then(res => res.json())
+    .then(details => {
+      if (details.status === "COMPLETED") {
+        alert("Payment successful! Invoice generated.");
+      } else {
+        alert("Payment status: " + details.status);
+      }
+    });
+  }
+}).render("#paypal-button-container");
+</script>
+
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD"></script>
 
 </body>
 </html>

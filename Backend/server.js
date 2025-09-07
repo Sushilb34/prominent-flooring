@@ -1,4 +1,4 @@
-required("dotenv").config();
+require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const express = require("express");
@@ -58,7 +58,7 @@ app.post('/create-order', async (req, res) => {
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
 
-    res.json({ id: order.data.id });
+    res.json(order.data);
   } catch (err) {
     console.error(err.response ? err.response.data : err.message);
     res.status(500).send("Error creating order");
@@ -89,11 +89,13 @@ app.post('/capture-order', async (req, res) => {
       };
 
       const pdfPath = await generateInvoicePdf(invoiceData);
-      if (invoiceData.payer) {
-        await sendInvoiceEmail(invoiceData.payer, pdfPath, invoiceData.invoiceId);
-      }
 
-      return res.json({ status: 'COMPLETED' });
+      return res.json({
+        status: "COMPLETED",
+        invoice: invoiceData,
+        file: pdfPath,
+      });
+
     } else {
       return res.json({ status: order.status });
     }
