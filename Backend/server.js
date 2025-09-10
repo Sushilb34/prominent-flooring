@@ -1,12 +1,23 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-
+const authRoutes = require("./routes/authRoutes")
+    ;
 const { createOrder, captureOrder } = require("./services/paypal");
 
 const app = express();
+
 app.use(bodyParser.json());
 
+app.use("/auth", authRoutes);
+
+// Serve static files from the root directory
+const path = require("path");
+app.use(express.static(path.join(__dirname, "../")));
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "../index.html"));
+});
 // ========= Routes =========
 app.post("/create-order", async (req, res) => {
   try {
