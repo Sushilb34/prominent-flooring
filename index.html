@@ -66,20 +66,12 @@
                                 <li class="menu-item menu-item-has-children" data-mm="false" data-mmc="2"><a href="contact.html"><span class="mi"></span><span class="txt">Contact us</span><span class="di icon-arrow-right9"></span></a>
                                 </li>
 
-                                <li class="" data-mm="false" data-mmc="2"><a href=".html"><span class="mi"></span><span class="txt">PAY NOW</span><span class="di icon-arrow-right9"></span></a>
+                                <li class="" data-mm="false" data-mmc="2">
+                                    <button id="checkout-button-mobile">Pay Now</button>
                                 </li>
-
-                                <!-- Admin Login button -->
-                                <li class="" data-mm="false" data-mmc="2" style="background:#2F60AD; border-radius:5px; margin-left:10px;">
-                                  <a href="javascript:void(0)" id="adminLoginBtn" style="color:white; padding:8px 15px; display:block;">
-                                    <span class="mi"></span>
-                                    <span class="txt">LOGIN</span>
-                                    <span class="di icon-arrow-right9"></span>
-                                  </a>
-                                </li>
-
                             </ul>
                         </nav>
+                        
 
                         <div class="slogan nz-clearfix">
                             <span class="nz-icon none small icon-phone animate-false" style="color:#fff"></span><span style="color:#999999;font-size:12px;padding-right:15px">QUESTIONS? CALL US: (803)354-6077</span><span class="nz-icon none small icon-envelope animate-false" style="color:#fff;font-size:12px"></span><span style="color:#999999;font-size:12px">prominentflooring@gmail.com</span> 
@@ -143,8 +135,10 @@
                                     <li class="menu-item menu-item-has-children" data-mm="false" data-mmc="2"><a href="contact.html"><span class="mi"></span><span class="txt">Contact us</span><span class="di icon-arrow-right9"></span></a>
                                     </li>
 
-                                    <li class="" data-mm="false" data-mmc="2"><a href=".html"><span class="mi"></span><span class="txt" style="background: #385AA2; color: #fff; padding: 10px;">PAY NOW</span><span class="di icon-arrow-right9"></span></a>
-                                </li>
+                                    <li class="" data-mm="false" data-mmc="2">
+                                        <button id="checkout-button-desktop">Pay Now</button>
+                                    </li>
+                                    
                                 </ul>
                             </nav>
 
@@ -153,6 +147,7 @@
 
                 </div>
             </header>
+            
 
 
             <div class="page-content-wrap">
@@ -995,62 +990,34 @@ padding: 70px;">Are you interested in learning more? Give us a call today at 803
             jQuery(sliderID).show().html(errorMessage);
         }
     </script>
-    <!-- Admin Login Modal -->
-<div id="adminModal" class="modal">
-  <div class="modal-content">
-    <span class="close" id="closeAdmin">&times;</span>
-    <h2>Admin Login - Prominent Flooring and Renovations</h2>
+    
+    
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Select both desktop and mobile buttons
+  const checkoutButtons = [
+    document.getElementById("checkout-button-desktop"),
+    document.getElementById("checkout-button-mobile")
+  ];
 
-    <form id="adminForm">
-      <input type="email" id="adminEmail" placeholder="Admin Email" required>
-      <div class="password-wrapper">
-        <input type="password" id="adminPassword" placeholder="Password" required>
-        <span class="toggle-password" onclick="togglePassword('adminPassword', this)">👁</span>
-      </div>
-      <button type="submit" class="btn">Login</button>
-    </form>
-  </div>
-</div>
+  checkoutButtons.forEach(button => {
+    if (!button) return; // Skip if button doesn't exist
+    button.addEventListener("click", async () => {
+      try {
+        const res = await fetch("/checkout", { method: "POST" });
+        const data = await res.json();
 
-    <script>
-function togglePassword(id, el) {
-  const input = document.getElementById(id);
-  if (input.type === "password") {
-    input.type = "text";
-    el.textContent = "🙈";
-  } else {
-    input.type = "password";
-    el.textContent = "👁";
-  }
-}
-
-const adminModal = document.getElementById("adminModal");
-document.getElementById("adminLoginBtn").onclick = () => adminModal.style.display = "block";
-document.getElementById("closeAdmin").onclick = () => adminModal.style.display = "none";
-window.onclick = (e) => { if (e.target == adminModal) adminModal.style.display = "none"; };
-
-document.getElementById("adminForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email = document.getElementById("adminEmail").value;
-  const password = document.getElementById("adminPassword").value;
-
-  const res = await fetch("http://localhost:3000/admin/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
+        if (data.url) {
+          window.location.href = data.url; // Redirect to Stripe
+        } else {
+          alert("Error creating checkout session");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Server error. Try again.");
+      }
+    });
   });
-
-  const data = await res.json();
-  if (res.ok) {
-    localStorage.setItem("adminToken", data.token);
-    alert("✅ Admin logged in!");
-    adminModal.style.display = "none";
-
-    // 👉 At this point, you’re logged in as Admin
-    // You can later add admin-only actions here
-  } else {
-    alert(data.message || "Login failed");
-  }
 });
 </script>
 
